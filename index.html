@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Feedback System</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17233c}
+header{background:#172b4d;color:white;text-align:center;padding:28px 15px}
+header h1{margin:0 0 8px}
+main{max-width:550px;margin:40px auto;padding:30px;background:white;border-radius:15px;box-shadow:0 8px 28px #172b4d18}
+h2{margin-top:0;color:#172b4d}
+label{display:block;margin:17px 0 7px;font-weight:bold}
+input,textarea{width:100%;padding:13px;border:1px solid #ccd4e0;border-radius:8px;font-size:15px}
+textarea{min-height:130px;resize:vertical}
+button{width:100%;margin-top:22px;padding:14px;background:#1769e0;color:white;border:0;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6}
+#message{margin-top:18px;text-align:center;font-weight:bold}
+footer{text-align:center;color:#667085;padding:20px}
+</style>
+</head>
+<body>
+<header>
+<h1>Student Feedback Portal</h1>
+<p>Share your experience and help us improve</p>
+</header>
+<main>
+<h2>Submit Your Feedback</h2>
+<form id="feedbackForm">
+<label for="name">Student Name</label>
+<input id="name" required placeholder="Enter your name">
+<label for="email">Email Address</label>
+<input id="email" type="email" required placeholder="Enter your email">
+<label for="feedback">Your Feedback</label>
+<textarea id="feedback" required placeholder="Write your feedback here..."></textarea>
+<button id="submitBtn" type="submit">Submit Feedback</button>
+</form>
+<div id="message" role="status"></div>
+</main>
+<footer>Powered by AWS Cloud Services</footer>
+<script>
+const API_URL = "https://lzv4nsg5da.execute-api.ap-southeast-2.amazonaws.com/feedback";
+
+document.getElementById("feedbackForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const button = document.getElementById("submitBtn");
+  const message = document.getElementById("message");
+  button.disabled = true;
+  button.textContent = "Submitting...";
+  message.textContent = "";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: document.getElementById("name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        feedback: document.getElementById("feedback").value.trim()
+      })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "Submission failed");
+    message.textContent = result.message;
+    message.style.color = "green";
+    this.reset();
+  } catch (error) {
+    message.textContent = "Unable to submit: " + error.message;
+    message.style.color = "red";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit Feedback";
+  }
+});
+</script>
+</body>
+</html>
